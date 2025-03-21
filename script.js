@@ -1,6 +1,6 @@
 import { faker } from 'https://cdn.skypack.dev/@faker-js/faker';
 
-const GLADIATORS_COUNT = 2;
+const GLADIATORS_COUNT = 5;
 let gladiators = [];
 let battleInterval;
 
