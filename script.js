@@ -52,8 +52,13 @@ function updateBattle() {
 
   gladiators.forEach(gladiator => {
     let healthSpan = document.querySelector(`#gladiator-${gladiator.name} .health`);
+    let speedSpan = document.querySelector(`#gladiator-${gladiator.name} .speed`);
     if (healthSpan) {
       healthSpan.textContent = gladiator.health.toFixed(1);
+    }
+    if (speedSpan) {
+      let currentSpeed = calculateSpeed(gladiator);
+      speedSpan.textContent = currentSpeed.toFixed(3);
     }
   });
 
@@ -115,7 +120,7 @@ document.getElementById('start').addEventListener('click', () => {
     let div = document.createElement('div');
     div.className = 'gladiator';
     div.id = `gladiator-${gladiator.name}`;
-    div.innerHTML = `<h3>${gladiator.name}</h3><p>Health: <span class='health'>${gladiator.health.toFixed(1)}</span></p><p>Power: ${gladiator.power.toFixed(1)}</p><p>Speed: ${gladiator.speed.toFixed(3)}</p>`;
+    div.innerHTML = `<h3>${gladiator.name}</h3><p>Health: <span class='health'>${gladiator.health.toFixed(1)}</span></p><p>Power: ${gladiator.power.toFixed(1)}</p><p>Speed: <span class='speed'>${gladiator.speed.toFixed(3)}</span></p>`;
     document.getElementById('gladiators').appendChild(div);
   });
 
