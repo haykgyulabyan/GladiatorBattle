@@ -1,7 +1,8 @@
 import { faker } from 'https://cdn.skypack.dev/@faker-js/faker';
 
-const GLADIATORS_COUNT = 5;
+const GLADIATORS_COUNT = 2;
 let gladiators = [];
+let battleInterval;
 
 function calculateSpeed(gladiator) {
   if (gladiator.health > 30) {
@@ -34,9 +35,64 @@ function log(message) {
   logDiv.scrollTop = logDiv.scrollHeight;
 }
 
+function updateBattle() {
+  const deltaTime = 100;
+
+  gladiators.forEach(gladiator => {
+    if (gladiator.health > 0) {
+      gladiator.timeSinceLastAttack += deltaTime;
+      let currentSpeed = calculateSpeed(gladiator);
+      let interval = 5000 / currentSpeed;
+      if (gladiator.timeSinceLastAttack >= interval) {
+        attack(gladiator);
+        gladiator.timeSinceLastAttack -= interval;
+      }
+    }
+  });
+
+  gladiators.forEach(gladiator => {
+    let healthSpan = document.querySelector(`#gladiator-${gladiator.name} .health`);
+    if (healthSpan) {
+      healthSpan.textContent = gladiator.health.toFixed(1);
+    }
+  });
+
+  let deadGladiators = gladiators.filter(g => g.health <= 0);
+  if (deadGladiators.length > 0) {
+    clearInterval(battleInterval);
+    let gladiatorToDecide = deadGladiators[0];
+    let decision = Math.random() < 0.5 ? 'finish' : 'live';
+    log(`Caesar shows ${decision === 'finish' ? ':-1:' : ':+1:'} to [${gladiatorToDecide.name}].`);
+    if (decision === 'finish') {
+      gladiators = gladiators.filter(g => g !== gladiatorToDecide);
+      let gladiatorDiv = document.getElementById(`gladiator-${gladiatorToDecide.name}`);
+      if (gladiatorDiv) gladiatorDiv.remove();
+    } else {
+      gladiatorToDecide.health += 50;
+    }
+
+    let aliveGladiators = gladiators.filter(g => g.health > 0);
+    if (aliveGladiators.length <= 1) {
+      if (aliveGladiators.length === 1) {
+        let winner = aliveGladiators[0];
+        document.getElementById('result').textContent = `[${winner.name}] won the battle with health ${winner.health.toFixed(1)}.`;
+      } else {
+        document.getElementById('result').textContent = 'All gladiators are dead.';
+      };
+    } else {
+      battleInterval = setInterval(updateBattle, 100);
+    };
+  }
+}
+
+function startBattle() {
+  battleInterval = setInterval(updateBattle, 100);
+}
+
 document.getElementById('start').addEventListener('click', () => {
   document.getElementById('log').innerHTML = '';
   document.getElementById('gladiators').innerHTML = '';
+  document.getElementById('result').innerHTML = '';
   gladiators = [];
 
   for (let i = 0; i < GLADIATORS_COUNT; i++) {
@@ -62,4 +118,6 @@ document.getElementById('start').addEventListener('click', () => {
     div.innerHTML = `<h3>${gladiator.name}</h3><p>Health: <span class='health'>${gladiator.health.toFixed(1)}</span></p><p>Power: ${gladiator.power.toFixed(1)}</p><p>Speed: ${gladiator.speed.toFixed(3)}</p>`;
     document.getElementById('gladiators').appendChild(div);
   });
+
+  startBattle();
 });
